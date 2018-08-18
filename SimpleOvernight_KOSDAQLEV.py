@@ -24,7 +24,7 @@ class Context:
         total_ret = (self.equity[-1] / self.equity[0])
         total_day = (self.equity.index.values[-1] - self.equity.index.values[0]) / (np.timedelta64(1, 'D'))
         total_year = float(total_day) / 365
-        return (total_ret ** (1 / total_year)) - 1
+        return round((total_ret ** (1 / total_year)) - 1, 2)
 
     def get_mdd(self):
         dds = [0]
@@ -34,7 +34,7 @@ class Context:
                 max_equity = self.equity[i]
             dd = -(max_equity - self.equity[i]) / max_equity
             dds.append(dd)
-        return min(dds)
+        return round(min(dds), 2)
 
 def process():
     df = pd.read_csv('KosdaqLevLogday_from20180102.csv', parse_dates=['logDate'])
@@ -54,10 +54,13 @@ def process():
         yesterday_money = delta_money + context.money[day]
     print('CAGR: {}%, MDD: {}%'.format(context.get_cagr()*100, context.get_mdd()*100))
     ax.plot(date_index, context.equity)
+    plt.annotate('CAGR: {}%, MDD: {}%'.format(context.get_cagr()*100, context.get_mdd()*100),
+                 xy=(0.05, 0.95), xycoords='axes fraction')
 
 def plot_equity():
     fig.autofmt_xdate()
     plt.legend(['equity curve'], loc='best')
+    plt.title('KOSDAQ 150 LEV Simple Overnight')
     plt.show()
 
 process()
